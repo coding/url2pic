@@ -23,3 +23,23 @@ schnerd's [post](https://medium.com/@dschnr/using-headless-chrome-as-an-automate
 
 ### Docker
 // TODO
+
+## Development
+
+### prepare
+
+#### yarn
+
+````
+brew install yarn
+```
+
+#### Global Binary
+```
+yarn global add pm2
+```
+
+### dev
+```
+yarn dev
+```

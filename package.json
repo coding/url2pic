@@ -3,7 +3,23 @@
   "version": "0.0.0",
   "description": "A web service for fetching url and converting into image using headless Chromium.",
   "main": "index.js",
+  "scripts": {
+     "start": "node dev/dev.js",
+     "dev:delete": "pm2 delete dev_url2pic",
+     "dev:watch": "pm2 start dev/dev.js --name dev_url2pic --watch",
+     "dev:log": "pm2 log",
+     "dev": "yarn dev:delete ; yarn dev:watch && yarn dev:log"
+  },
   "repository": "git@github.com:Coding/url2pic.git",
   "author": "wusisu <i@wusisu.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+     "koa": "^2.3.0",
+     "koa-logger": "^3.0.0",
+     "log4js": "^1.1.1"
+  },
+  "engines": {
+     "node": ">= 7.6.0"
+  }
 }
