@@ -1,0 +1,9 @@
+{
+  "name": "url2pic",
+  "version": "0.0.0",
+  "description": "A web service for fetching url and converting into image using headless Chromium.",
+  "main": "index.js",
+  "repository": "git@github.com:Coding/url2pic.git",
+  "author": "wusisu <i@wusisu.com>",
+  "license": "MIT"
+}
