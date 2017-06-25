@@ -40,6 +40,12 @@ yarn global add pm2
 ```
 
 ### dev
+
+start chromium headless rpc on your own (to avoid repeatedly restarting)
+```
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --headless --remote-debugging-port=9222
+```
+
 ```
 yarn dev
 ```

@@ -1,25 +1,33 @@
 {
-  "name": "url2pic",
-  "version": "0.0.0",
-  "description": "A web service for fetching url and converting into image using headless Chromium.",
-  "main": "index.js",
-  "scripts": {
-     "start": "node dev/dev.js",
-     "dev:delete": "pm2 delete dev_url2pic",
-     "dev:watch": "pm2 start dev/dev.js --name dev_url2pic --watch",
-     "dev:log": "pm2 log",
-     "dev": "yarn dev:delete ; yarn dev:watch && yarn dev:log"
-  },
-  "repository": "git@github.com:Coding/url2pic.git",
-  "author": "wusisu <i@wusisu.com>",
-  "license": "MIT",
-  "devDependencies": {},
-  "dependencies": {
-     "koa": "^2.3.0",
-     "koa-logger": "^3.0.0",
-     "log4js": "^1.1.1"
-  },
-  "engines": {
-     "node": ">= 7.6.0"
-  }
+   "name": "url2pic",
+   "version": "0.0.0",
+   "description": "A web service for fetching url and converting into image using headless Chromium.",
+   "main": "index.js",
+   "scripts": {
+      "start": "node dev/dev.js",
+      "dev:delete": "pm2 delete dev_url2pic",
+      "dev:watch": "pm2_watching=true pm2 start dev/dev.js --no-autorestart --name dev_url2pic --watch src --watch dev",
+      "dev:log": "pm2 log",
+      "dev": "yarn dev:delete ; yarn dev:watch && yarn dev:log"
+   },
+   "repository": "git@github.com:Coding/url2pic.git",
+   "author": "wusisu <i@wusisu.com>",
+   "license": "MIT",
+   "devDependencies": {},
+   "dependencies": {
+      "chrome-remote-interface": "^0.23.2",
+      "delay": "^2.0.0",
+      "koa": "^2.3.0",
+      "koa-logger": "^3.0.0",
+      "lodash": "^4.17.4",
+      "log4js": "^1.1.1",
+      "mz": "^2.6.0"
+   },
+   "engines": {
+      "node": ">= 7.6.0"
+   },
+   "os": [
+      "darwin",
+      "linux"
+   ]
 }
