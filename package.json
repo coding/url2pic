@@ -15,6 +15,7 @@
    "license": "MIT",
    "devDependencies": {},
    "dependencies": {
+      "bee-queue": "^0.3.0",
       "chrome-remote-interface": "^0.23.2",
       "delay": "^2.0.0",
       "koa": "^2.3.0",

@@ -5,7 +5,7 @@ const CDP = require('chrome-remote-interface');
 const timeout = require('delay');
 const file = require('mz/fs');
 const fs = require('fs');
-
+const child_process = require('child_process');
 
 const log = require('./log');
 
@@ -22,7 +22,23 @@ class Chromium {
             output: 'screenshot.png',
         }
     }
+
+    callChromium() {
+        const uri = this.chromiumUri();
+        log.info('starting chromium rpc ' + uri);
+        const args = [
+            '--headless',
+            '--hide-scrollbars',
+            // '--remote-debugging-port=9222',
+            '--disable-gpu',
+        ];
+        this.chromium = child_process.spawn(uri, args)
+    }
+
     async screenshot(params={}) {
+        return '';
+    }
+    async qscreenshot(params={}) {
         try {
             return await this._screenshot(_.assign({}, this.defaultParams, params));
         } catch(err) {
@@ -58,7 +74,7 @@ class Chromium {
         }
     }
 
-    async _screenshot(params) {
+    async _qscreenshot(params) {
 
         log.debug('screenshot: ', params);
         
