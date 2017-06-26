@@ -7,16 +7,21 @@ const app = new Koa();
 
 app.use(KoaLogger());
 
+const open_ids = [];
 
+let index = 0;
+const chromium = new Chromium();
 
 app.use(async (ctx) => {
-    const chromium = new Chromium();
+
+    const gk = open_ids[index++];
     const buffer = await chromium.screenshot({
-        url: 'https://coding.net/u/wusisu/score/share',
-        viewportWidth: 400,
-        delay: 1000,
+        url: `https://coding.net/u/${gk}/score/share`,
+        id: gk,
+        width: 600,
+        height: 885,
     });
-    console.log(buffer && buffer.length)
+    console.log(buffer && buffer.length);
     ctx.body = buffer;
 });
 

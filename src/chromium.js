@@ -1,11 +1,8 @@
 
+const path = require('path');
+const fs = require('mz/fs');
+const child_process = require('mz/child_process');
 const _ = require('lodash');
-
-const CDP = require('chrome-remote-interface');
-const timeout = require('delay');
-const file = require('mz/fs');
-const fs = require('fs');
-const child_process = require('child_process');
 
 const log = require('./log');
 
@@ -13,141 +10,68 @@ class Chromium {
     constructor() {
         this.defaultParams = {
             userAgent: null,
-            viewportWidth: 1440,
-            viewportHeight: 900,
+            width: 1440,
+            height: 900,
             url: "https://coding.net",
-            delay: 1,
-            format: 'png',
-            fullPage: false,
-            output: 'screenshot.png',
+            id: 'default',
         }
     }
 
-    callChromium() {
+    chromiumUri() {
+        return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+    }
+
+    async createDir(dirPath) {
+        try {
+            await fs.mkdir(dirPath);
+            log.debug(dirPath + ' created');
+        } catch (e) {
+            log.debug(dirPath + ' exists.' + e);
+        }
+    }
+
+    callChromium(params) {
         const uri = this.chromiumUri();
-        log.info('starting chromium rpc ' + uri);
         const args = [
             '--headless',
             '--hide-scrollbars',
-            // '--remote-debugging-port=9222',
             '--disable-gpu',
+            `--window-size=${params.width},${params.height}`,
+            '--screenshot'
         ];
-        this.chromium = child_process.spawn(uri, args)
-    }
-
-    async screenshot(params={}) {
-        return '';
-    }
-    async qscreenshot(params={}) {
-        try {
-            return await this._screenshot(_.assign({}, this.defaultParams, params));
-        } catch(err) {
-            let paramsJson = null;
-            try {
-                paramsJson = JSON.stringify(params)
-            } catch (ignored) {
-            }
-            log.error('error while screenshoting with options: ' + paramJson + ' with err: ' + err);
-        } finally {
-            if (this.client) {
-                this.client.close();
-                this.client = null;
-            }
-        }
-    }
-
-    async test() {
-        const client = await CDP();
-        const {Page} = client;
-        try {
-            await Page.enable();
-            await Page.navigate({url: 'https://github.com'});
-            await Page.loadEventFired();
-            const {data} = await Page.captureScreenshot();
-            const buffer = Buffer.from(data, 'base64');
-            fs.writeFileSync('scrot.png', buffer);
-            return buffer;
-        } catch (err) {
-            console.error(err);
-        } finally {
-            await client.close();
-        }
-    }
-
-    async _qscreenshot(params) {
-
-        log.debug('screenshot: ', params);
-        
-        // Start the Chrome Debugging Protocol
-        this.client = await CDP();
-        // Extract used DevTools domains.
-        const {DOM, Emulation, Network, Page, Runtime} = this.client;
-
-        // Enable events on domains we are interested in.
-        await Page.enable();
-        await DOM.enable();
-        await Network.enable();
-        
-        const {
-            userAgent,
-            viewportWidth,
-            viewportHeight,
-            url,
-            delay,
-            format,
-            fullPage,
-            output,
-        } = params;
-
-        // If user agent override was specified, pass to Network domain
-        if (userAgent) {
-            await Network.setUserAgentOverride({userAgent});
-        }
-
-        // Set up viewport resolution, etc.
-        const deviceMetrics = {
-            width: viewportWidth,
-            height: viewportHeight,
-            deviceScaleFactor: 0,
-            mobile: false,
-            fitWindow: false,
+        args.push(params.url);
+        const options = {
+            cwd: params.path,
+            timeout: 1
         };
-        await Emulation.setDeviceMetricsOverride(deviceMetrics);
-        await Emulation.setVisibleSize({
-            width: viewportWidth,
-            height: viewportHeight,
-        });
-
-        // Navigate to target page
-        await Page.navigate({url});
-
-        // Wait for page load event to take screenshot
-        await Page.loadEventFired();
-
-        await timeout(delay);
-
-        // If the `fullPage` option was passed, we need to measure the height of
-        // the rendered page and use Emulation.setVisibleSize
-        if (fullPage) {
-            const {root: {nodeId: documentNodeId}} = await DOM.getDocument();
-            const {nodeId: bodyNodeId} = await DOM.querySelector({
-                selector: 'body',
-                nodeId: documentNodeId,
+        const chromium = child_process.spawn(uri, args, options);
+        return new Promise((resolve, reject) => {
+            chromium.on('close', function (code) {
+                log.debug('chromium exits with code ' + code);
+                resolve(code);
             });
-            const {model: {height}} = await DOM.getBoxModel({nodeId: bodyNodeId});
+            chromium.on('error', function (err) {
+                log.error('chromium error:' + err);
+                reject(err);
+            })
+        })
+    }
 
-            await Emulation.setVisibleSize({width: viewportWidth, height: height});
-            // This forceViewport call ensures that content outside the viewport is
-            // rendered, otherwise it shows up as grey. Possibly a bug?
-            await Emulation.forceViewport({x: 0, y: 0, scale: 1});
+    async readFromFile(dirPath) {
+        try {
+            return await fs.readFile(path.join(dirPath, 'screenshot.png'));
+        } catch (err) {
+            log.error(`read ${dirPath} failed with error: ${err}`);
+            return null;
         }
+    }
 
-        // const screenshot = await Page.captureScreenshot({format});
-        const screenshot = await Page.captureScreenshot();
-        const buffer = Buffer.from(screenshot.data, 'base64');
-        await file.writeFile(output, buffer, 'base64');
-        console.log('Screenshot saved');
-        return buffer;
+    async screenshot(userParams={}) {
+        const params = _.extend({}, this.defaultParams, userParams);
+        params.path = path.join('./downloads', params.id);
+        await this.createDir(params.path);
+        await this.callChromium(params);
+        return await this.readFromFile(params.path);
     }
 }
 
