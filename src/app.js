@@ -15,6 +15,11 @@ const App = function (config) {
             ctx.state = 404;
             return;
         }
+        // cache is ok
+        if (ctx.fresh) {
+            ctx.status = 304;
+            return;
+        }
         const query = ctx.query;
         const params = {
             width: query.width || 1440,
@@ -24,7 +29,11 @@ const App = function (config) {
             force: query.force === 'true',
             url: decodeURIComponent(query.url),
         };
-        ctx.body = await chromiumService.screenshot(params);
+        const data = await chromiumService.screenshot(params);
+        ctx.status = 200;
+        ctx.type = 'png';
+        ctx.etag = query.etag;
+        ctx.body = data;
     });
 
     app.on('error', err =>

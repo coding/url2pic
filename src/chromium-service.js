@@ -12,18 +12,18 @@ class ChromiumService {
     async screenshot(params) {
         params.action = 'screenshot';
         return new Promise((resolve, reject) => {
-            params.fishCallback = resolve;
+            params.finishCallback = resolve;
             this.queue.push(params, reject);
         });
     }
 
     worker(task, cb) {
         if (task.action === 'screenshot') {
-            this.chromium.screenshot(task).then(task.fishCallback).then(cb).catch(cb);
+            this.chromium.screenshot(task).then(task.finishCallback).then(cb).catch(cb);
             return;
         }
         log.error('should not come here.');
-        task.fishCallback();
+        task.finishCallback();
         cb();
     }
 }

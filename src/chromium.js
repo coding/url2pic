@@ -86,7 +86,8 @@ class Chromium {
     async screenshot(userParams={}) {
         const params = _.extend({}, this.defaultParams, userParams);
         params.path = path.join(this.config.downloadDir, params.id);
-        if (params.force || await this.checkEtagFresh(params)) {
+        let fresh = params.force || await this.checkEtagFresh(params);
+        if (fresh) {
             await utils.createDir(params.path);
             await this.callChromium(params);
             await this.writeEtag(params);
