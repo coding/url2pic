@@ -61,7 +61,7 @@ class Chromium {
             '--hide-scrollbars',
             '--disable-gpu',
             `--window-size=${params.width},${params.height}`,
-            '--screenshot'
+            '--screenshot',
         ];
         args.push(params.url);
         const options = {
