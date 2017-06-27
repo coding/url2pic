@@ -1,28 +1,29 @@
 const Koa = require('koa');
 const log = require('./log');
 const KoaLogger = require('koa-logger');
-const Chromium = require('./chromium');
+const ChromiumService = require('./chromium-service');
 
 const app = new Koa();
 
 app.use(KoaLogger());
 
-const open_ids = [];
-
-let index = 0;
-const chromium = new Chromium();
+const chromiumService = new ChromiumService();
 
 app.use(async (ctx) => {
-
-    const gk = open_ids[index++];
-    const buffer = await chromium.screenshot({
-        url: `https://coding.net/u/${gk}/score/share`,
-        id: gk,
-        width: 600,
-        height: 885,
-    });
-    console.log(buffer && buffer.length);
-    ctx.body = buffer;
+    if (ctx.path !== '/internal/screenshot') {
+        ctx.state = 404;
+        return;
+    }
+    const query = ctx.query;
+    const params = {
+        width: query.width || 1400,
+        height: query.height || 900,
+        id: query.id,
+        etag: query.etag || 'no',
+        force: query.force === 'true',
+        url: decodeURIComponent(query.url),
+    };
+    ctx.body = await chromiumService.screenshot(params);
 });
 
 app.on('error', err =>
