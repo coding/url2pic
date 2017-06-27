@@ -4,8 +4,9 @@ const Chromium = require('./chromium');
 
 class ChromiumService {
     constructor(config) {
-        this.chromium = new Chromium();
-        this.queue = async.queue(this.worker.bind(this), 5);
+        this.config = config;
+        this.chromium = new Chromium(config);
+        this.queue = async.queue(this.worker.bind(this), config.concurrency);
     }
 
     async screenshot(params) {

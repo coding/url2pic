@@ -5,9 +5,10 @@ const child_process = require('mz/child_process');
 const _ = require('lodash');
 
 const log = require('./log');
+const utils = require('./utils');
 
 class Chromium {
-    constructor() {
+    constructor(config) {
         this.defaultParams = {
             userAgent: null,
             width: 1440,
@@ -18,6 +19,7 @@ class Chromium {
             force: false,
             etag: 'no',
         }
+        this.config = config;
     }
 
     chromiumUri() {
@@ -42,15 +44,6 @@ class Chromium {
             await fs.writeFile(path.join(params.path, 'etag.txt'), params.etag);
         } catch (e) {
             log.warn(`error when writing etag ${params.path}, error: ${e}`);
-        }
-    }
-
-    async createDir(dirPath) {
-        try {
-            await fs.mkdir(dirPath);
-            log.debug(dirPath + ' created');
-        } catch (e) {
-            log.debug(dirPath + ' exists.' + e);
         }
     }
 
@@ -92,9 +85,9 @@ class Chromium {
 
     async screenshot(userParams={}) {
         const params = _.extend({}, this.defaultParams, userParams);
-        params.path = path.join('./downloads', params.id);
+        params.path = path.join(this.config.downloadDir, params.id);
         if (params.force || await this.checkEtagFresh(params)) {
-            await this.createDir(params.path);
+            await utils.createDir(params.path);
             await this.callChromium(params);
             await this.writeEtag(params);
         }

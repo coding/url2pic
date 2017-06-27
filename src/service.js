@@ -1,5 +1,6 @@
 const log = require('./log');
 const App = require('./app');
+const utils = require('./utils');
 
 class Service {
     static
@@ -10,8 +11,12 @@ class Service {
         this.config = config;
     }
     serve() {
+        this.setup();
         log.info(this.config);
-        App.listen(3000);
+        App(this.config).listen(this.config.port);
+    }
+    async setup() {
+        await utils.createDir(this.config.downloadDir);
     }
 }
 
