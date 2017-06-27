@@ -14,11 +14,35 @@ class Chromium {
             height: 900,
             url: "https://coding.net",
             id: 'default',
+            action: 'screenshot',
+            force: false,
+            etag: 'no',
         }
     }
 
     chromiumUri() {
         return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+    }
+
+    async checkEtagFresh(params) {
+        if (!params.etag) return true;
+        try {
+            const lastEtag = await fs.readFile(path.join(params.path, 'etag.txt'), 'utf8');
+            console.log(lastEtag, params.etag)
+            return lastEtag !== params.etag;
+        } catch (e) {
+            log.warn(`error when fetching etag ${params.path}, error: ${e}`);
+            return true;
+        }
+    }
+
+    async writeEtag(params) {
+        if (!params.etag) return;
+        try {
+            await fs.writeFile(path.join(params.path, 'etag.txt'), params.etag);
+        } catch (e) {
+            log.warn(`error when writing etag ${params.path}, error: ${e}`);
+        }
     }
 
     async createDir(dirPath) {
@@ -42,8 +66,8 @@ class Chromium {
         args.push(params.url);
         const options = {
             cwd: params.path,
-            timeout: 1
         };
+        log.debug(`${uri} ${args.join(' ')}`);
         const chromium = child_process.spawn(uri, args, options);
         return new Promise((resolve, reject) => {
             chromium.on('close', function (code) {
@@ -69,8 +93,11 @@ class Chromium {
     async screenshot(userParams={}) {
         const params = _.extend({}, this.defaultParams, userParams);
         params.path = path.join('./downloads', params.id);
-        await this.createDir(params.path);
-        await this.callChromium(params);
+        if (params.force || await this.checkEtagFresh(params)) {
+            await this.createDir(params.path);
+            await this.callChromium(params);
+            await this.writeEtag(params);
+        }
         return await this.readFromFile(params.path);
     }
 }
