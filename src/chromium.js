@@ -23,14 +23,13 @@ class Chromium {
     }
 
     chromiumUri() {
-        return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+        return this.config.chromiumExec;
     }
 
     async checkEtagFresh(params) {
         if (!params.etag) return true;
         try {
             const lastEtag = await fs.readFile(path.join(params.path, 'etag.txt'), 'utf8');
-            console.log(lastEtag, params.etag)
             return lastEtag !== params.etag;
         } catch (e) {
             log.warn(`error when fetching etag ${params.path}, error: ${e}`);

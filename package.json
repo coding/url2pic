@@ -4,9 +4,9 @@
    "description": "A web service for fetching url and converting into image using headless Chromium.",
    "main": "index.js",
    "scripts": {
-      "start": "node dev/dev.js",
+      "start": "node dev/prod.js",
       "dev:delete": "pm2 delete dev_url2pic",
-      "dev:watch": "pm2_watching=true pm2 start dev/dev.js --no-autorestart --name dev_url2pic --watch src --watch dev",
+      "dev:watch": "pm2 start dev/dev.js --no-autorestart --name dev_url2pic --watch src --watch dev",
       "dev:log": "pm2 log",
       "dev": "yarn dev:delete ; yarn dev:watch && yarn dev:log"
    },
