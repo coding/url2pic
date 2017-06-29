@@ -18,7 +18,9 @@ class Chromium {
             action: 'screenshot',
             force: false,
             etag: 'no',
-        }
+            timeout: ~~config.timeout || 2500,
+            VirtualTimeBudget: ~~config.VirtualTimeBudget || 1500,
+        };
         this.config = config;
     }
 
@@ -53,6 +55,8 @@ class Chromium {
             '--hide-scrollbars',
             '--disable-gpu',
             `--window-size=${params.width},${params.height}`,
+            `--timeout=${~~params.timeout}`,
+            `--virtual-time-budget=${~~params.VirtualTimeBudget}`,
             '--screenshot',
         ];
         args.push(params.url);
