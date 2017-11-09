@@ -1,4 +1,4 @@
-# url2pic
+Dockerfile# url2pic
 A web service for fetching url and converting into image using headless Chromium.
 
 ## Introduction
@@ -16,13 +16,7 @@ schnerd's [post](https://medium.com/@dschnr/using-headless-chrome-as-an-automate
 ### Linux
 
 #### Setup
-// TODO
-
-#### Run
-// TODO
-
-### Docker
-// TODO
+[setup.md](./dev/setup.md)
 
 ## Development
 
